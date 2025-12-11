@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 50%, #55efc4 100%);
             overflow: hidden;
             direction: rtl;
         }
@@ -44,11 +44,11 @@
         }
 
         #controls h2 {
-            color: #1e3c72;
+            color: #00b894;
             margin-bottom: 20px;
             font-size: 22px;
             text-align: center;
-            border-bottom: 2px solid #2a5298;
+            border-bottom: 2px solid #00cec9;
             padding-bottom: 10px;
         }
 
@@ -65,7 +65,7 @@
         }
 
         .value-display {
-            color: #2a5298;
+            color: #00cec9;
             font-weight: 700;
             font-size: 15px;
         }
@@ -73,7 +73,7 @@
         button {
             width: 100%;
             padding: 12px 16px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -82,12 +82,12 @@
             font-weight: 600;
             transition: all 0.3s;
             margin-bottom: 8px;
-            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(30, 60, 114, 0.5);
+            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.5);
         }
 
         button:active {
@@ -104,7 +104,7 @@
             width: 100%;
             height: 8px;
             border-radius: 5px;
-            background: linear-gradient(to right, #ddd, #2a5298);
+            background: linear-gradient(to right, #ddd, #00cec9);
             outline: none;
             -webkit-appearance: none;
             appearance: none;
@@ -116,7 +116,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #1e3c72;
+            background: #00b894;
             cursor: pointer;
             border: 3px solid white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -126,7 +126,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #1e3c72;
+            background: #00b894;
             cursor: pointer;
             border: 3px solid white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -149,7 +149,7 @@
 
         .info h3 {
             margin-bottom: 12px;
-            color: #1e3c72;
+            color: #00b894;
             font-size: 16px;
         }
 
@@ -165,8 +165,8 @@
             border-radius: 10px;
             text-align: center;
             font-weight: 600;
-            color: #1e3c72;
-            border: 2px solid #2a5298;
+            color: #00b894;
+            border: 2px solid #00cec9;
         }
 
         .energy-display {
@@ -182,7 +182,7 @@
         .energy-value {
             font-size: 18px;
             font-weight: 700;
-            color: #2a5298;
+            color: #00cec9;
         }
 
         select {
@@ -199,7 +199,7 @@
 
         select:focus {
             outline: none;
-            border-color: #2a5298;
+            border-color: #00cec9;
         }
     </style>
 </head>
@@ -537,11 +537,11 @@
             directionalLight1.shadow.mapSize.height = 2048;
             scene.add(directionalLight1);
             
-            const directionalLight2 = new THREE.DirectionalLight(0x4a90e2, 0.4);
+            const directionalLight2 = new THREE.DirectionalLight(0x00cec9, 0.4);
             directionalLight2.position.set(-10, 5, -10);
             scene.add(directionalLight2);
             
-            const pointLight = new THREE.PointLight(0x667eea, 0.6, 100);
+            const pointLight = new THREE.PointLight(0x00b894, 0.6, 100);
             pointLight.position.set(0, 10, 0);
             scene.add(pointLight);
             
@@ -700,7 +700,7 @@
             const normalizedEnergy = Math.max(0, maxEnergy - energy);
             document.getElementById('energyValue').textContent = normalizedEnergy.toFixed(1);
             document.getElementById('energyValue').style.color = 
-                normalizedEnergy > maxEnergy * 0.7 ? '#2a5298' : 
+                normalizedEnergy > maxEnergy * 0.7 ? '#00cec9' : 
                 normalizedEnergy > maxEnergy * 0.4 ? '#ff9800' : '#f44336';
         }
         
@@ -791,6 +791,31 @@
         unfoldedPositions.push(...generateUnfolded());
         updateFoldedPositions();
         init();
+
+        // Create floating particles
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.bottom = '0';
+            particle.style.animationDelay = Math.random() * 2 + 's';
+            particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 10000);
+        }
+
+        setInterval(createParticle, 1000);
+
+        // Add celebration animation on button click
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.animation = 'none';
+                setTimeout(() => {
+                    this.style.animation = 'wiggle 0.5s ease-in-out';
+                }, 10);
+            });
+        });
     </script>
 </body>
 </html>
