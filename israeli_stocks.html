@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מעקב מניות ישראליות - דשבורד אינטראקטיבי</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        header h1 {
+            color: #1e3c72;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: #2a5298;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #e9ecef;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #dee2e6;
+        }
+
+        .filter-btn.active {
+            background: #2a5298;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .change {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .change.positive {
+            color: #28a745;
+        }
+
+        .change.negative {
+            color: #dc3545;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #2a5298;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+        }
+
+        .btn.active {
+            background: #28a745;
+        }
+
+        .stocks-table-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .stocks-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stocks-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .stocks-table th:hover {
+            background: #2a5298;
+        }
+
+        .stocks-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stocks-table tr {
+            transition: background 0.2s;
+        }
+
+        .stocks-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .stocks-table tr.selected {
+            background: #e7f3ff;
+        }
+
+        .stock-symbol {
+            font-weight: bold;
+            color: #1e3c72;
+            font-size: 18px;
+        }
+
+        .stock-name {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2a5298;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .portfolio-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .portfolio-section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .portfolio-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .portfolio-item:last-child {
+            border-bottom: none;
+        }
+
+        .portfolio-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #1e3c72;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: #1e3c72;
+        }
+
+        .add-to-portfolio {
+            padding: 5px 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .add-to-portfolio:hover {
+            background: #218838;
+        }
+
+        .remove-from-portfolio {
+            padding: 5px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .remove-from-portfolio:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-wrapper {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 מעקב מניות ישראליות</h1>
+            <p>דשבורד אינטראקטיבי למעקב אחרי הבורסה בתל אביב</p>
+        </header>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="חפש מניה לפי שם או סמל (לדוגמה: טבע, בנק הפועלים, אלביט...)">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">הכל</button>
+                <button class="filter-btn" data-filter="gainers">עולות</button>
+                <button class="filter-btn" data-filter="losers">יורדות</button>
+                <button class="filter-btn" data-filter="volume">נפח גבוה</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>מדד תל אביב 35</h3>
+                <div class="value" id="ta35Value">1,234.56</div>
+                <div class="change positive" id="ta35Change">+1.23%</div>
+            </div>
+            <div class="stat-card">
+                <h3>מדד תל אביב 125</h3>
+                <div class="value" id="ta125Value">1,456.78</div>
+                <div class="change positive" id="ta125Change">+0.87%</div>
+            </div>
+            <div class="stat-card">
+                <h3>נפח מסחר יומי</h3>
+                <div class="value" id="volumeValue">2.5B ₪</div>
+                <div class="change">עדכון: <span id="lastUpdate">--:--</span></div>
+            </div>
+            <div class="stat-card">
+                <h3>מניות עולות</h3>
+                <div class="value" id="gainersCount">12</div>
+                <div class="change positive">+5.2% ממוצע</div>
+            </div>
+            <div class="stat-card">
+                <h3>מניות יורדות</h3>
+                <div class="value" id="losersCount">8</div>
+                <div class="change negative">-2.1% ממוצע</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>גרף מחירים - <span id="selectedStockName">בחר מניה</span></h2>
+                <div class="controls">
+                    <button class="btn active" data-period="1D">יום</button>
+                    <button class="btn" data-period="1W">שבוע</button>
+                    <button class="btn" data-period="1M">חודש</button>
+                    <button class="btn" data-period="3M">3 חודשים</button>
+                    <button class="btn" data-period="1Y">שנה</button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>השוואת מניות</h2>
+                <div class="chart-wrapper">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>התפלגות שווי שוק</h2>
+            <div class="chart-wrapper">
+                <canvas id="marketCapChart"></canvas>
+            </div>
+        </div>
+
+        <div class="portfolio-section">
+            <h2>תיק השקעות שלי</h2>
+            <div id="portfolioList">
+                <p style="text-align: center; color: #666; padding: 20px;">אין מניות בתיק. לחץ על מניה כדי להוסיף אותה</p>
+            </div>
+            <div class="portfolio-total" id="portfolioTotal" style="display: none;">
+                שווי כולל: <span id="totalValue">0</span> ₪ | רווח/הפסד: <span id="totalChange">0</span>%
+            </div>
+        </div>
+
+        <div class="stocks-table-container">
+            <table class="stocks-table">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('symbol')">סמל ↕</th>
+                        <th onclick="sortTable('name')">שם המניה ↕</th>
+                        <th onclick="sortTable('price')">מחיר נוכחי ↕</th>
+                        <th onclick="sortTable('change')">שינוי ↕</th>
+                        <th onclick="sortTable('volume')">נפח ↕</th>
+                        <th onclick="sortTable('marketCap')">שווי שוק ↕</th>
+                        <th>פעולות</th>
+                    </tr>
+                </thead>
+                <tbody id="stocksTableBody">
+                    <tr>
+                        <td colspan="7" class="loading">
+                            <div class="spinner"></div>
+                            טוען נתונים...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <script>
+        // נתוני מניות ישראליות (סימולציה)
+        const israeliStocks = [
+            { symbol: 'TEVA', name: 'טבע', price: 45.20, change: 1.2, volume: 12500000, marketCap: 52.5 },
+            { symbol: 'POLI', name: 'בנק הפועלים', price: 28.50, change: -0.5, volume: 8500000, marketCap: 35.2 },
+            { symbol: 'LEUMI', name: 'בנק לאומי', price: 32.10, change: 0.8, volume: 7200000, marketCap: 48.9 },
+            { symbol: 'ELBIT', name: 'אלביט מערכות', price: 245.80, change: 2.1, volume: 3200000, marketCap: 108.3 },
+            { symbol: 'NICE', name: 'ניס טכנולוגיות', price: 185.40, change: -1.3, volume: 2100000, marketCap: 11.2 },
+            { symbol: 'MELI', name: 'מליבו', price: 12.30, change: 3.5, volume: 15000000, marketCap: 2.8 },
+            { symbol: 'CKFR', name: 'כפר חב"ד', price: 8.90, change: -0.2, volume: 4500000, marketCap: 0.9 },
+            { symbol: 'BEZQ', name: 'בזק', price: 42.60, change: 0.7, volume: 6800000, marketCap: 18.5 },
+            { symbol: 'CEL', name: 'סלקום', price: 38.20, change: -0.9, volume: 5200000, marketCap: 15.3 },
+            { symbol: 'ISCN', name: 'איסקון', price: 15.80, change: 1.5, volume: 3800000, marketCap: 4.2 },
+            { symbol: 'IDEX', name: 'אידקס', price: 22.40, change: 0.3, volume: 2900000, marketCap: 6.1 },
+            { symbol: 'MGIC', name: 'מגיק', price: 18.70, change: -0.4, volume: 4100000, marketCap: 3.9 },
+            { symbol: 'RDWR', name: 'רדוור', price: 31.50, change: 2.3, volume: 5600000, marketCap: 8.7 },
+            { symbol: 'WIX', name: 'ויקס', price: 95.20, change: -1.1, volume: 1900000, marketCap: 16.4 },
+            { symbol: 'FVRR', name: 'פריבר', price: 28.90, change: 0.6, volume: 2400000, marketCap: 3.2 },
+            { symbol: 'MNDY', name: 'מנדי', price: 125.40, change: 1.8, volume: 1700000, marketCap: 5.8 },
+            { symbol: 'NNDM', name: 'ננודימנשן', price: 3.20, change: -2.5, volume: 12000000, marketCap: 1.1 },
+            { symbol: 'TSEM', name: 'טאוור סמיקונדקטור', price: 34.60, change: 0.9, volume: 6300000, marketCap: 12.3 },
+            { symbol: 'PLTK', name: 'פלטיק', price: 7.80, change: 1.2, volume: 8900000, marketCap: 2.1 },
+            { symbol: 'CHKP', name: 'צ\'ק פוינט', price: 142.30, change: 0.4, volume: 1800000, marketCap: 22.6 }
+        ];
+
+        let filteredStocks = [...israeliStocks];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let priceChart = null;
+        let comparisonChart = null;
+        let marketCapChart = null;
+        let selectedStock = null;
+        let currentPeriod = '1D';
+        let portfolio = JSON.parse(localStorage.getItem('portfolio')) || [];
+        let selectedStocksForComparison = [];
+
+        // אתחול
+        function init() {
+            renderTable();
+            updateStats();
+            setupSearch();
+            setupFilters();
+            setupChart();
+            setupComparisonChart();
+            setupMarketCapChart();
+            setupPeriodButtons();
+            updateTime();
+            updatePortfolio();
+            setInterval(updatePrices, 5000);
+            setInterval(updateTime, 1000);
+        }
+
+        // עדכון מחירים (סימולציה)
+        function updatePrices() {
+            israeliStocks.forEach(stock => {
+                const change = (Math.random() - 0.5) * 0.1;
+                stock.price = Math.max(0.1, stock.price * (1 + change));
+                stock.change = (Math.random() - 0.5) * 4;
+            });
+            renderTable();
+            updateStats();
+            updatePortfolio();
+            if (selectedStock) {
+                updateChart();
+            }
+            updateComparisonChart();
+        }
+
+        // עדכון זמן
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('he-IL');
+            document.getElementById('lastUpdate').textContent = timeStr;
+        }
+
+        // עדכון סטטיסטיקות
+        function updateStats() {
+            const ta35 = 1234.56 + (Math.random() - 0.5) * 20;
+            const ta125 = 1456.78 + (Math.random() - 0.5) * 25;
+            const ta35Change = (Math.random() - 0.4) * 3;
+            const ta125Change = (Math.random() - 0.4) * 2.5;
+
+            document.getElementById('ta35Value').textContent = ta35.toFixed(2);
+            document.getElementById('ta125Value').textContent = ta125.toFixed(2);
+            
+            const ta35ChangeEl = document.getElementById('ta35Change');
+            ta35ChangeEl.textContent = (ta35Change >= 0 ? '+' : '') + ta35Change.toFixed(2) + '%';
+            ta35ChangeEl.className = 'change ' + (ta35Change >= 0 ? 'positive' : 'negative');
+            
+            const ta125ChangeEl = document.getElementById('ta125Change');
+            ta125ChangeEl.textContent = (ta125Change >= 0 ? '+' : '') + ta125Change.toFixed(2) + '%';
+            ta125ChangeEl.className = 'change ' + (ta125Change >= 0 ? 'positive' : 'negative');
+
+            // עדכון מניות עולות/יורדות
+            const gainers = israeliStocks.filter(s => s.change > 0);
+            const losers = israeliStocks.filter(s => s.change < 0);
+            const avgGain = gainers.length > 0 ? gainers.reduce((sum, s) => sum + s.change, 0) / gainers.length : 0;
+            const avgLoss = losers.length > 0 ? losers.reduce((sum, s) => sum + s.change, 0) / losers.length : 0;
+
+            document.getElementById('gainersCount').textContent = gainers.length;
+            document.getElementById('losersCount').textContent = losers.length;
+        }
+
+        // הצגת טבלה
+        function renderTable() {
+            const tbody = document.getElementById('stocksTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredStocks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-results">לא נמצאו תוצאות</td></tr>';
+                return;
+            }
+
+            filteredStocks.forEach(stock => {
+                const row = document.createElement('tr');
+                const isInPortfolio = portfolio.some(p => p.symbol === stock.symbol);
+                const isSelected = selectedStock && selectedStock.symbol === stock.symbol;
+                
+                if (isSelected) {
+                    row.classList.add('selected');
+                }
+
+                row.onclick = (e) => {
+                    if (e.target.tagName !== 'BUTTON') {
+                        selectStock(stock);
+                    }
+                };
+                row.style.cursor = 'pointer';
+
+                const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                const changeSign = stock.change >= 0 ? '+' : '';
+
+                row.innerHTML = `
+                    <td>
+                        <div class="stock-symbol">${stock.symbol}</div>
+                    </td>
+                    <td>
+                        <div class="stock-name">${stock.name}</div>
+                    </td>
+                    <td><strong>${stock.price.toFixed(2)} ₪</strong></td>
+                    <td class="change ${changeClass}">${changeSign}${stock.change.toFixed(2)}%</td>
+                    <td>${formatNumber(stock.volume)}</td>
+                    <td>${stock.marketCap.toFixed(1)}B ₪</td>
+                    <td>
+                        ${isInPortfolio 
+                            ? `<button class="remove-from-portfolio" onclick="removeFromPortfolio('${stock.symbol}')">הסר מתיק</button>`
+                            : `<button class="add-to-portfolio" onclick="addToPortfolio('${stock.symbol}')">הוסף לתיק</button>`
+                        }
+                        <button class="btn" style="padding: 5px 10px; margin-right: 5px;" onclick="addToComparison('${stock.symbol}')">השווה</button>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // פורמט מספרים
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // חיפוש
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                applyFilters(query);
+            });
+        }
+
+        // הגדרת פילטרים
+        function setupFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    applyFilters(document.getElementById('searchInput').value.toLowerCase());
+                });
+            });
+        }
+
+        // החלת פילטרים
+        function applyFilters(query = '') {
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            
+            filteredStocks = israeliStocks.filter(stock => {
+                const matchesSearch = stock.symbol.toLowerCase().includes(query) || stock.name.includes(query);
+                
+                if (!matchesSearch) return false;
+
+                switch(activeFilter) {
+                    case 'gainers':
+                        return stock.change > 0;
+                    case 'losers':
+                        return stock.change < 0;
+                    case 'volume':
+                        return stock.volume > 5000000;
+                    default:
+                        return true;
+                }
+            });
+
+            renderTable();
+        }
+
+        // מיון טבלה
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            filteredStocks.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+
+                if (column === 'name') {
+                    aVal = a.name;
+                    bVal = b.name;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortDirection === 'asc' 
+                        ? aVal.localeCompare(bVal, 'he')
+                        : bVal.localeCompare(aVal, 'he');
+                }
+
+                return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            renderTable();
+        }
+
+        // בחירת מניה
+        function selectStock(stock) {
+            selectedStock = stock;
+            document.getElementById('selectedStockName').textContent = `${stock.name} (${stock.symbol})`;
+            updateChart();
+            renderTable();
+        }
+
+        // הגדרת גרף מחירים
+        function setupChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'מחיר',
+                        data: [],
+                        borderColor: '#2a5298',
+                        backgroundColor: 'rgba(42, 82, 152, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'מחיר: ' + context.parsed.y.toFixed(2) + ' ₪';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(2) + ' ₪';
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // עדכון גרף מחירים
+        function updateChart() {
+            if (!selectedStock) {
+                priceChart.data.labels = [];
+                priceChart.data.datasets[0].data = [];
+                priceChart.update();
+                return;
+            }
+
+            const dataPoints = getDataPointsForPeriod(currentPeriod);
+            priceChart.data.labels = dataPoints.labels;
+            priceChart.data.datasets[0].data = dataPoints.prices;
+            priceChart.data.datasets[0].label = `${selectedStock.name} (${selectedStock.symbol})`;
+            priceChart.update();
+        }
+
+        // הגדרת גרף השוואה
+        function setupComparisonChart() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            comparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' ₪';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(2) + ' ₪';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // עדכון גרף השוואה
+        function updateComparisonChart() {
+            if (selectedStocksForComparison.length === 0) {
+                comparisonChart.data.labels = [];
+                comparisonChart.data.datasets = [];
+                comparisonChart.update();
+                return;
+            }
+
+            const stocks = selectedStocksForComparison.map(symbol => 
+                israeliStocks.find(stock => stock.symbol === symbol)
+            ).filter(Boolean);
+
+            comparisonChart.data.labels = stocks.map(s => s.symbol);
+            comparisonChart.data.datasets = [
+                {
+                    label: 'מחיר נוכחי',
+                    data: stocks.map(s => s.price),
+                    backgroundColor: stocks.map(s => s.change >= 0 ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)'),
+                    borderColor: stocks.map(s => s.change >= 0 ? '#28a745' : '#dc3545'),
+                    borderWidth: 2
+                }
+            ];
+            comparisonChart.update();
+        }
+
+        // הוספה להשוואה
+        function addToComparison(symbol) {
+            if (!selectedStocksForComparison.includes(symbol)) {
+                if (selectedStocksForComparison.length < 5) {
+                    selectedStocksForComparison.push(symbol);
+                    updateComparisonChart();
+                } else {
+                    alert('ניתן להשוות עד 5 מניות');
+                }
+            } else {
+                selectedStocksForComparison = selectedStocksForComparison.filter(s => s !== symbol);
+                updateComparisonChart();
+            }
+        }
+
+        // הגדרת גרף שווי שוק
+        function setupMarketCapChart() {
+            const ctx = document.getElementById('marketCapChart').getContext('2d');
+            
+            const topStocks = [...israeliStocks]
+                .sort((a, b) => b.marketCap - a.marketCap)
+                .slice(0, 10);
+
+            marketCapChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: topStocks.map(s => s.symbol),
+                    datasets: [{
+                        data: topStocks.map(s => s.marketCap),
+                        backgroundColor: [
+                            '#2a5298', '#1e3c72', '#28a745', '#ffc107', '#dc3545',
+                            '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14', '#20c997'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + 'B ₪';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // יצירת נקודות נתונים לפי תקופה
+        function getDataPointsForPeriod(period) {
+            let numPoints, labels, prices;
+            const basePrice = selectedStock.price;
+
+            switch(period) {
+                case '1D':
+                    numPoints = 24;
+                    labels = Array.from({length: numPoints}, (_, i) => {
+                        const hour = (i * 60 / (numPoints - 1)) % 24;
+                        return Math.floor(hour) + ':' + String(Math.floor((hour % 1) * 60)).padStart(2, '0');
+                    });
+                    prices = generatePriceData(basePrice, numPoints, 0.02);
+                    break;
+                case '1W':
+                    numPoints = 7;
+                    labels = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+                    prices = generatePriceData(basePrice, numPoints, 0.05);
+                    break;
+                case '1M':
+                    numPoints = 30;
+                    labels = Array.from({length: numPoints}, (_, i) => i + 1);
+                    prices = generatePriceData(basePrice, numPoints, 0.08);
+                    break;
+                case '3M':
+                    numPoints = 12;
+                    labels = Array.from({length: numPoints}, (_, i) => 'חודש ' + (i + 1));
+                    prices = generatePriceData(basePrice, numPoints, 0.15);
+                    break;
+                case '1Y':
+                    numPoints = 12;
+                    labels = ['ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יונ', 'יול', 'אוג', 'ספט', 'אוק', 'נוב', 'דצמ'];
+                    prices = generatePriceData(basePrice, numPoints, 0.25);
+                    break;
+            }
+
+            return { labels, prices };
+        }
+
+        // יצירת נתוני מחיר סימולציה
+        function generatePriceData(basePrice, numPoints, volatility) {
+            const prices = [];
+            let currentPrice = basePrice * (1 - volatility / 2);
+
+            for (let i = 0; i < numPoints; i++) {
+                const change = (Math.random() - 0.5) * volatility;
+                currentPrice = currentPrice * (1 + change);
+                prices.push(Math.max(0.1, currentPrice));
+            }
+
+            return prices;
+        }
+
+        // הגדרת כפתורי תקופה
+        function setupPeriodButtons() {
+            document.querySelectorAll('.btn[data-period]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.btn[data-period]').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentPeriod = e.target.dataset.period;
+                    if (selectedStock) {
+                        updateChart();
+                    }
+                });
+            });
+        }
+
+        // הוספה לתיק
+        function addToPortfolio(symbol) {
+            const stock = israeliStocks.find(s => s.symbol === symbol);
+            if (stock && !portfolio.some(p => p.symbol === symbol)) {
+                portfolio.push({
+                    symbol: symbol,
+                    name: stock.name,
+                    purchasePrice: stock.price,
+                    quantity: 1
+                });
+                localStorage.setItem('portfolio', JSON.stringify(portfolio));
+                updatePortfolio();
+                renderTable();
+            }
+        }
+
+        // הסרה מתיק
+        function removeFromPortfolio(symbol) {
+            portfolio = portfolio.filter(p => p.symbol !== symbol);
+            localStorage.setItem('portfolio', JSON.stringify(portfolio));
+            updatePortfolio();
+            renderTable();
+        }
+
+        // עדכון תיק
+        function updatePortfolio() {
+            const portfolioList = document.getElementById('portfolioList');
+            const portfolioTotal = document.getElementById('portfolioTotal');
+
+            if (portfolio.length === 0) {
+                portfolioList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">אין מניות בתיק. לחץ על מניה כדי להוסיף אותה</p>';
+                portfolioTotal.style.display = 'none';
+                return;
+            }
+
+            let totalValue = 0;
+            let totalChange = 0;
+
+            portfolioList.innerHTML = portfolio.map(item => {
+                const stock = israeliStocks.find(s => s.symbol === item.symbol);
+                if (!stock) return '';
+
+                const currentValue = stock.price * item.quantity;
+                const purchaseValue = item.purchasePrice * item.quantity;
+                const change = ((stock.price - item.purchasePrice) / item.purchasePrice) * 100;
+                const profit = currentValue - purchaseValue;
+
+                totalValue += currentValue;
+                totalChange += change * (purchaseValue / (totalValue || 1));
+
+                const changeClass = change >= 0 ? 'positive' : 'negative';
+                const changeSign = change >= 0 ? '+' : '';
+
+                return `
+                    <div class="portfolio-item">
+                        <div>
+                            <strong>${item.symbol}</strong> - ${item.name}<br>
+                            <small>כמות: ${item.quantity} | מחיר רכישה: ${item.purchasePrice.toFixed(2)} ₪</small>
+                        </div>
+                        <div style="text-align: left;">
+                            <div><strong>${currentValue.toFixed(2)} ₪</strong></div>
+                            <div class="change ${changeClass}">${changeSign}${change.toFixed(2)}%</div>
+                            <div style="font-size: 12px; color: #666;">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} ₪</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const avgChange = portfolio.reduce((sum, item) => {
+                const stock = israeliStocks.find(s => s.symbol === item.symbol);
+                if (!stock) return sum;
+                const change = ((stock.price - item.purchasePrice) / item.purchasePrice) * 100;
+                return sum + change;
+            }, 0) / portfolio.length;
+
+            document.getElementById('totalValue').textContent = totalValue.toFixed(2);
+            const totalChangeEl = document.getElementById('totalChange');
+            totalChangeEl.textContent = (avgChange >= 0 ? '+' : '') + avgChange.toFixed(2);
+            totalChangeEl.className = avgChange >= 0 ? 'positive' : 'negative';
+            portfolioTotal.style.display = 'block';
+        }
+
+        // התחלה
+        init();
+    </script>
+</body>
+</html>
